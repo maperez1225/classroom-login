@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Label layoutX="35.0" layoutY="21.0" prefHeight="36.0" prefWidth="231.0" text="Sign in to Classroom" textAlignment="CENTER">
+         <font>
+            <Font size="25.0" />
+         </font>
+      </Label>
+      <Label layoutX="21.0" layoutY="92.0" text="Username:" />
+      <Label layoutX="23.0" layoutY="136.0" text="Password:" />
+      <TextField fx:id="txtUserName" layoutX="101.0" layoutY="88.0" prefHeight="25.0" prefWidth="149.0" />
+      <PasswordField fx:id="txtPswd" layoutX="101.0" layoutY="132.0" prefHeight="25.0" prefWidth="149.0" />
+      <Button layoutX="65.0" layoutY="168.0" mnemonicParsing="false" onAction="#launchSignUp" text="Sign Up" />
+      <Button layoutX="186.0" layoutY="168.0" mnemonicParsing="false" onAction="#launchLogIn" text="Log In" />
+   </children>
+</Pane>
