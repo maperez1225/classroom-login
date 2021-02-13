@@ -12,6 +12,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -21,27 +22,28 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import model.Classroom;
 import model.UserAccount;
 
 public class ClassroomGUI {
 	private Classroom classroom;
-	private File imgFile;
+	private Image imgFile;
 	private ToggleGroup genderToggle;
 	public ClassroomGUI(Classroom classroom) {
 		this.classroom = classroom;
-		genderToggle = new ToggleGroup();
-		rbMale.setToggleGroup(genderToggle);
-        rbFemale.setToggleGroup(genderToggle);
-        rbOther.setToggleGroup(genderToggle);
 	}
 	
 	@FXML
     private BorderPane mainPane;
+	
+	@FXML
+    private Pane loginPane;
 	
 	@FXML
 	private TextField txtUserName;
@@ -72,6 +74,9 @@ public class ClassroomGUI {
 
     @FXML
     private CheckBox checkINDE;
+    
+    @FXML
+    private ChoiceBox<String> choiceBrowser;
 
 	@FXML
 	private DatePicker birthday;
@@ -128,12 +133,23 @@ public class ClassroomGUI {
 	}
 	
 	@FXML
-	public void launchSignUp(ActionEvent event) {
-		
+	public void launchSignUp(ActionEvent event) throws IOException{
+		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("create-account.fxml"));
+		fxmlLoader.setController(this);
+		Parent userView = fxmlLoader.load();
+		mainPane.getChildren().clear();
+    	mainPane.setCenter(userView);
+    	ObservableList<String> browsersList = FXCollections.observableArrayList("Chrome","Edge","Safari","Opera","Firefox","Other");
+    	genderToggle = new ToggleGroup();
+		rbMale.setToggleGroup(genderToggle);
+        rbFemale.setToggleGroup(genderToggle);
+        rbOther.setToggleGroup(genderToggle);
+        choiceBrowser.setItems(browsersList);
 	}
 	
 	@FXML
 	public void launchImageChooser(ActionEvent event) {
+		imgFile = null;
 		FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Image");
         fileChooser.getExtensionFilters().addAll(
@@ -141,28 +157,58 @@ public class ClassroomGUI {
                 new FileChooser.ExtensionFilter("JPG", "*.jpg"),
                 new FileChooser.ExtensionFilter("PNG", "*.png")
         );
-        imgFile = fileChooser.showOpenDialog(stage);
-        if (imgFile != null) {
-        	imagePath.setText(imgFile.getAbsolutePath());
+        File file = fileChooser.showOpenDialog(new Stage());
+        if (file != null) {
+        	imgFile = new Image("file:" + file.getAbsolutePath());
+        	imagePath.setText(file.getAbsolutePath());
         }
 	}
 	
 	@FXML
-	public void returnToLogin(ActionEvent event) {
-		
+	public void returnToLogin(ActionEvent event) throws IOException{
+		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("login.fxml"));
+		fxmlLoader.setController(this);
+		Parent userView = fxmlLoader.load();
+		mainPane.getChildren().clear();
+    	mainPane.setCenter(userView);
 	}
 	
 	@FXML
 	public void signUp(ActionEvent event) {
-		
-		UserAccount user = new UserAccount(txtUserName.getText(), txtPswd.getText(), genderToggle.getSelectedToggle().toString(), , birthday.toString(), , imgFile);
-		classroom.addUser(user);
+		int careerCount = 0;
+		String career = "";
+		if (checkSWE.isSelected()) {
+			careerCount++;
+			career = checkSWE.getText();
+		}
+		if (checkTELE.isSelected()) {
+			careerCount++;
+			career = checkTELE.getText();
+		}
+		if (checkINDE.isSelected()) {
+			careerCount++;
+			career = checkINDE.getText();
+		}
+		if (careerCount > 1)
+			career = "Multiple";
+		if (careerCount == 0 || genderToggle.getSelectedToggle() == null || imgFile == null || birthday.getValue() == null || choiceBrowser.getValue() == null || txtCreateUser.getText() == null || txtCreatePassword.getText() == null) {
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Unable to create user");
+			alert.setHeaderText(null);
+			alert.setContentText("Please verify that you are not missing any information.");
+			alert.show();
+		}
+		else {
+			UserAccount user = new UserAccount(txtCreateUser.getText(), txtCreatePassword.getText(), ((RadioButton) genderToggle.getSelectedToggle()).getText(), career, birthday.getValue().toString(), choiceBrowser.getValue(), imgFile);
+			classroom.addUser(user);
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Success");
+			alert.setHeaderText(null);
+			alert.setContentText("User created successfully.");
+			alert.show();
+		}
 	}
 	
-	@FXML
-	public void logOut(ActionEvent event) {
-		
-	}
 	private void initializeTableView() {
     	ObservableList<UserAccount> observableList;
     	observableList = FXCollections.observableArrayList(classroom.getUsers());
